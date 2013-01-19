@@ -44,7 +44,12 @@ module Motion::Project
           Pod::Command::Repo.new(Pod::Command::ARGV.new(["update"])).run
         end
         @pods.instance_eval(&block)
-        @pods.install!
+        begin
+          @pods.install!
+        rescue => exc
+          # Fail silently if network is unavailable
+          raise unless exc.is_a?(Pod::Informative)
+        end
       end
       @pods
     end
